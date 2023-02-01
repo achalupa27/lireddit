@@ -1,0 +1,156 @@
+Initialize the project
+    $ npm init -y
+	: creates package.json (project configuration)
+	: -y flag says yes to all prompts
+	: to run npm, need node.js installed
+		: node -v and npm -v to check
+	:can also use yarn
+
+Set up TypeScript with Node:
+    $ yarn add -D @types/node typescript
+	-D flag adds package as a dev dependency
+	@types/node gives access to type information for built in node functions
+
+Create TS Config file:
+npx tsconfig.json
+	may run into error, can download from npm or create your own with:
+		$ tsc --init (need tsc installed, check: tsc -v)
+
+Server and GraphQL packages:
+    $ yarn add express apollo-server-express graphql type-graphql
+    *apollo-server-express replaced with @apollo/server. Cannot use applyMiddleware with new.
+
+Create migration:
+    $ npx mikro-orm migration:create
+
+Mikro-ORM CLI (add this to package.json):
+    "mikro-orm": {
+        "useTsNode": true,
+        "configPaths": [
+            "./src/mikro-orm.config.ts",
+            "./dist/mikro-orm.config.js"
+        ]
+    }
+
+Mikro-ORM packages:
+    $ yarn add @mikro-orm/cli @mikro-orm/core @mikro-orm/migrations @mikro-orm/postgresql pg
+    - used to interact with database (create tables, insert data, select data)
+
+"watch": "tsc -w"
+	compiles ts to js in dist folder
+	saving file changes re compiles 
+
+Nodemon
+    yarn add -D nodemon
+	- listens to changes made in files and reruns automatically
+
+Cookies, Sessions, Redis
+    $ yarn add redis connect-redis express-session
+
+How Sessions Work (express-session):
+1 - session data stored in redis as key-value pair(sess:alsdkfj304asdffd9fj -> {data})
+2 - signed version of key is sent to browser (ex: dlkejr23094uasdfwefqwoeir3lqkuef)
+3 - when user sends request, they send signed key to server
+4 - server decrypts signed key with secret and gets original key
+5 - request is made to redis with original key and returns data to req.session
+
+Add cors:
+    $ yarn add cors
+    $ yarn add -D @types/cors
+
+Add nodemailer:
+http://nodemailer.com/about/
+    $ yarn add nodemailer
+    $ yarn add -D @types/nodemailer
+
+Add UUID, ioredis
+    $ yarn add uuid ioredis
+    $ yarn add -D @types/uuid @types/ioredis
+
+Switch to TypeORM
+https://typeorm.io/
+    $ yarn add typeorm
+
+Migrations:
+    up: makes changes to database
+    down: reverts those changes
+
+SSR cookie:
+for ssr rendered request:
+    browser -> nextjs -> graphql api
+    - client sends cookies to nextjs but doesn't do anything with it, cookie is not sent to graphql api
+    * this is why voteStatus is not available
+    * will work on load more because load more makes request from browser
+    * need to tell nextjs server to send cookie to graphql api
+client side render:
+    browser -> graphql api (client send cookies to graphql)
+
+Add dataloader
+    yarn add dataloader
+    - this is for n+1 problem, when resolving fields
+    - ex when fetching users for a post, it will fetch each user individually
+
+Deployment (Digital Ocean)
+    - create Droplet with Dokku
+    - ssh into droplet: ssh root@droplet_ip
+    - create app for backend
+        $ dokku apps:create app_name
+    - add postgres
+        $ sudo dokku plugin:install https://github.com/dokku/dokku-postgres.git
+    - create postgres container / database
+        $ dokku postgres:create container_name
+    - link postgres container to app
+        $ dokku postgres:link container_name app_name
+    - add redis
+        $ sudo dokku plugin:install https://github.com/dokku/dokku-redis.git redis
+    - create redis container / database
+        $ dokku redis:create container_name
+    - link redis container to app
+        $ dokku redis:link container_name app_name
+    :  docker container list
+        - should list redis and postgres container
+    
+add environment variables to .env
+add dotenv-safe
+    $ yarn add dotenv-safe
+        : add .env.example file
+            - this makes sure all variables declared in this file are used
+    - don't want to include .env in github
+    - dokku adds some production variables. if want to use custome (like SESSION_SECRET), need to add .env.production file
+
+setup initialization migration:
+    create ormconfig.json
+    $ npx typeorm migration:generate -d dist/ormconfig.js ./src/Initialize 
+
+push image to dockerhub
+    if private
+    $ docker push achalupa27/project_name:version
+
+pull the docker image from ssh'd computer
+    if public
+    $ docker pull achalupa27/project_name:version
+
+    $ docker tag achalupa27/algotut:1 dokku/api:latest
+
+    $ dokku tags:deploy app_name latest
+
+set up dokku-letsencrypt on VPS
+    $ dokku config:set --no-restart api DOKKU_LETSENCRYPT_EMAIL=halupa27@gmail.com
+    $ dokku domains:remove-global global_vhost
+    $ dokku domains:remove app_name app_vhost
+    $ dokku domains:add-global algotut.io
+    $ dokku domains:add app_name app_name_algotut.io
+
+add proxy port
+    $ dokku proxy:ports-add app_name http:80:8080
+
+add dokku-letsencrypt:
+    $ dokku letsencrypt:enable app_name
+
+Re-deploying backend: 
+    $ docker build -t achalupa27/algotut:$VERSION .
+    $ docker push achalupa27/algotut:$VERSION
+    $ ssh root@ip "docker pull achalupa27/algotut:$VERSION && docker tag achalupa27/algotut:$VERSION dokku/api:$VERSION && dokku deploy api $VERSION"
+    $ docker pull achalupa27/algotut:$VERSION
+    $ docker tag achalupa27/algotut:$VERSION dokku/api:$VERSION
+    $ dokku deploy api $VERSION

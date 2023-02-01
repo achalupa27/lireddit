@@ -1,0 +1,43 @@
+Set up front end, including NextJS. Use chakra-ui:
+https://nextjs.org/docs
+https://chakra-ui.com/getting-started
+    yarn create next-app --example with-chakra-ui lireddit-web
+
+Set up graphQL request client (urql)
+https://formidable.com/open-source/urql/docs/basics/react-preact/
+    yarn add urql graphql
+
+Add GraphQL code gen
+https://the-guild.dev/graphql/codegen/docs/getting-started
+    yarn add -D @graphql-codegen/cli
+    yarn add -D @graphql-codegen/typescript-urql
+
+    : generates information needed for typesafe queries and hook
+
+Add urql graphcache
+https://formidable.com/open-source/urql/docs/graphcache/
+    yarn add @urql/exchange-graphcache
+
+Set up SSR with graphql + urql
+    yarn add next-urql react-is
+
+    : gives withUrqlClient componenet that can be used to wrap components to optionally server side render pages
+
+Server Side Rendering:
+    User makes request to browser (localhost:3000)
+    browser makes request to next.js server
+    next.js server makes request to graphQL server (localhost:4000/graphql)
+    next.js builds HTML and sends it back to browser
+    / user -> browser -> next.js -> graphql -> next.js -> browser
+    Next.js only SSR's first page, subsequent navigations do not SSR
+
+Add vercel
+    $ npm i -g vercel@latest
+
+Deploy to vercel
+    $ vercel
+
+Deploy to prod
+    $ vercel --prod
+
+in vercel, NEXT_PUBLIC_API_URL=api.algotut.io, the server database
