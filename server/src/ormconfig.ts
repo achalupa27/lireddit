@@ -6,7 +6,7 @@ const AppDataSource = new DataSource({
     port: 5432,
     username: 'postgres',
     password: 'postgres',
-    database: 'lireddit3',
+    database: 'lireddit2',
     entities: ['dist/entities/*.js'],
     migrations: ['dist/migrations/*.js'],
 });

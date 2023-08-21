@@ -80,13 +80,13 @@ function invalidateAllPosts(cache: Cache) {
 }
 
 export const createUrqlClient = (ssrExchange: any, ctx: any) => {
-    let cookie: any = '';
-    let cookieString = '';
-    if (isServer()) {
-        cookie = ctx?.req?.cookies;
-        cookieString = Object.keys(cookie)[0] + '=' + cookie.qid;
-        console.log(cookieString);
-    }
+    // let cookie: any = '';
+    // let cookieString = '';
+    // if (isServer()) {
+    //     cookie = ctx?.req?.cookies;
+    //     cookieString = Object.keys(cookie)[0] + '=' + cookie.qid;
+    //     console.log(cookieString);
+    // }
 
     return {
         url: process.env.NEXT_PUBLIC_API_URL as string,

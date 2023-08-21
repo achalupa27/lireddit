@@ -27,7 +27,7 @@ const main = async () => {
         password: 'postgres',*/
         url: process.env.DATABASE_URL,
         logging: true,
-        //synchronize: true, // turn off in production; want to be very specific about sql generating and altering tables
+        synchronize: true, // turn off in production; want to be very specific about sql generating and altering tables
         migrations: [path.join(__dirname, './migrations/*')],
         entities: [Post, User, Updoot],
     });
@@ -38,7 +38,7 @@ const main = async () => {
     const app = express(); // Init server
 
     const RedisStore = require('connect-redis')(session);
-    const redis = new Redis(/*process.env.REDIS_URL*/); // Connect to redis
+    const redis = new Redis(); // Connect to redis
 
     //x-forwarded-proto https
     app.set('trust proxy', 1); // for apollo studio cookies // since nginx is sitting infront of api, need to tell nginx we have a proxy sitting in front so cookies/sessions work
@@ -63,7 +63,7 @@ const main = async () => {
                 httpOnly: true, // good for security: cannot access cookie in frontend js
                 sameSite: 'lax', // csrf // use 'none' for apollo studio, lax for localhost
                 secure: __prod__, // cookie only works in https; // use true for apollo studio, __prod__ for localhost
-                domain: __prod__ ? '.algotut.io' : undefined,
+                //domain: __prod__ ? '.algotut.io' : undefined,
             },
             secret: process.env.SESSION_SECRET, // how cookies is signed, usually want to hide
             resave: false,
